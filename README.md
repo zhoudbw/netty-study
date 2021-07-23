@@ -11,6 +11,6 @@ Netty的学习笔记
 * websocket服务和websocket客户端<br/>
 * ByteBuf<br/>
 * Channel组件<br/>
-* TCP粘包拆包及解决方案
-* 序列化框架protobuf
+* TCP粘包拆包及解决方案<br/>
+* 序列化框架protobuf<br/>
 （声明：每一部分的内容都很多，我们只是拿出Netty需要用到的）
