@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
@@ -7,6 +8,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/netty-zhoudbw-01-basic-io/pom.xml" />
+        <option value="$PROJECT_DIR$/netty-protobuf-chat/pom.xml" />
       </list>
     </option>
   </component>
