@@ -1,0 +1,145 @@
+========================================
+项目错误修复日志
+========================================
+日期: 2026-03-30
+项目: netty-protobuf-chat
+
+========================================
+发现的错误列表
+========================================
+
+1. [错误] gRPC编译插件配置错误
+   文件: pom.xml
+   位置: protobuf-maven-plugin配置
+   错误信息: protoc-gen-grpc-java: program not found or is not executable
+   原因: 项目配置了gRPC编译目标(compile-custom)，但proto文件是纯protobuf定义，不包含gRPC服务
+
+2. [错误] 重复的ChatProtocol类
+   文件: src/main/java/com/kernelcode/chat/protocol/ChatProtocol.java
+   错误信息: 类重复: com.kernelcode.chat.protocol.ChatProtocol
+   原因: 存在手动编写的ChatProtocol.java文件，与protobuf自动生成的类冲突
+
+3. [错误] ChannelManager类型推断错误
+   文件: src/main/java/com/kernelcode/chat/server/ChannelManager.java
+   位置: 第113行
+   错误信息: 无法推断java.util.ArrayList<>的类型参数
+   原因: getPlayers()返回ConcurrentHashMap<String, Boolean>，直接传递给ArrayList构造器导致类型推断失败
+
+4. [错误] ChannelManager迭代错误
+   文件: src/main/java/com/kernelcode/chat/server/ChannelManager.java
+   位置: 第144行
+   错误信息: for-each 不适用于表达式类型 - ConcurrentHashMap<String, Boolean>
+   原因: 直接迭代ConcurrentHashMap对象，应该迭代其keySet()
+
+5. [错误] ClientHandler访问权限错误
+   文件: src/main/java/com/kernelcode/chat/client/ClientHandler.java
+   位置: 第69行
+   错误信息: joinChannel(...) 在 ChatClient 中是 private 访问控制
+   原因: ClientHandler需要调用ChatClient的joinChannel方法，但该方法被声明为private
+
+6. [错误] byte[]到ByteString类型转换错误
+   文件:
+     - src/main/java/com/kernelcode/chat/client/ChatClient.java (第320行)
+     - src/main/java/com/kernelcode/chat/server/ServerHandler.java (第189, 200, 209行)
+   错误信息: 不兼容的类型: byte[]无法转换为com.google.protobuf.ByteString
+   原因: GameMessage.setData()方法需要ByteString类型，但代码直接传递了byte[]
+
+7. [错误] InvalidProtocolBufferException未处理
+   文件:
+     - src/main/java/com/kernelcode/chat/client/ClientHandler.java (多处)
+     - src/main/java/com/kernelcode/chat/server/ServerHandler.java (多处)
+   错误信息: 未报告的异常错误com.google.protobuf.InvalidProtocolBufferException
+   原因: parseFrom()方法抛出InvalidProtocolBufferException，但handler方法未声明throws
+
+========================================
+修复方案
+========================================
+
+1. [修复] 移除gRPC编译配置
+   文件: pom.xml
+   修改内容:
+   - 移除<pluginId>grpc-java</pluginId>配置
+   - 移除<goal>compile-custom</goal>目标
+   - 只保留<goal>compile</goal>用于纯protobuf编译
+
+2. [修复] 删除重复的ChatProtocol类
+   操作: 删除 src/main/java/com/kernelcode/chat/protocol/ChatProtocol.java
+   说明: 该类由protobuf编译器自动生成，不需要手动编写
+
+3. [修复] ChannelManager类型推断
+   文件: src/main/java/com/kernelcode/chat/server/ChannelManager.java
+   修改: 第113行
+   原代码: return new ArrayList<>( group.getPlayers() );
+   修改后: return new ArrayList<>( group.getPlayers().keySet() );
+
+4. [修复] ChannelManager迭代
+   文件: src/main/java/com/kernelcode/chat/server/ChannelManager.java
+   修改: 第144行
+   原代码: for( String playerId : group.getPlayers() )
+   修改后: for( String playerId : group.getPlayers().keySet() )
+
+5. [修复] ClientHandler访问权限
+   文件: src/main/java/com/kernelcode/chat/client/ChatClient.java
+   修改: 第234行
+   原代码: private void joinChannel(...)
+   修改后: public void joinChannel(...)
+
+6. [修复] byte[]到ByteString转换
+   文件:
+     - src/main/java/com/kernelcode/chat/client/ChatClient.java
+     - src/main/java/com/kernelcode/chat/server/ServerHandler.java
+   修改: 使用ByteString.copyFrom()包装byte[]
+   原代码: .setData( message.toByteArray() )
+   修改后: .setData( com.google.protobuf.ByteString.copyFrom( message.toByteArray() ) )
+
+7. [修复] 添加异常声明
+   文件:
+     - src/main/java/com/kernelcode/chat/client/ClientHandler.java
+     - src/main/java/com/kernelcode/chat/server/ServerHandler.java
+   修改: 为所有调用parseFrom()的handler方法添加throws声明
+   添加: throws com.google.protobuf.InvalidProtocolBufferException
+
+   修改的方法列表:
+   ClientHandler:
+   - handleConnectResp
+   - handleHeartbeatAck
+   - handleChatResp
+   - handleChatNotify
+   - handleJoinChannelResp
+   - handleLeaveChannelResp
+   - handleUserListNotify
+   - handleHistoryResp
+
+   ServerHandler:
+   - handleConnectReq
+   - handleHeartbeat
+   - handleChatReq
+   - handleJoinChannelReq
+   - handleLeaveChannelReq
+
+========================================
+验证结果
+========================================
+
+编译命令: mvn clean compile
+编译状态: BUILD SUCCESS
+编译时间: 8.246秒
+警告信息: ChatServer.java使用了已过时的API (不影响功能)
+
+========================================
+总结
+========================================
+
+总共发现并修复了7类错误:
+1. 配置错误: 1个 (gRPC插件配置)
+2. 文件冲突: 1个 (重复的ChatProtocol类)
+3. 类型错误: 3个 (类型推断、迭代、ByteString转换)
+4. 访问权限: 1个 (private方法)
+5. 异常处理: 1个 (未声明的checked异常)
+
+所有错误已成功修复，项目现在可以正常编译运行。
+
+========================================
+修复完成时间
+========================================
+2026-03-30 14:47:33

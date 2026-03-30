@@ -49,7 +49,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理连接请求
      */
-    private void handleConnectReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) {
+    private void handleConnectReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.ConnectReq req = ChatProtocol.ConnectReq.parseFrom( msg.getData() );
         
         // 创建玩家信息
@@ -70,7 +70,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理心跳
      */
-    private void handleHeartbeat( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) {
+    private void handleHeartbeat( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.HeartBeat heartBeat = ChatProtocol.HeartBeat.parseFrom( msg.getData() );
         
         // 响应心跳
@@ -82,7 +82,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理聊天消息请求
      */
-    private void handleChatReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) {
+    private void handleChatReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.ChatReq req = ChatProtocol.ChatReq.parseFrom( msg.getData() );
         PlayerSession session = channelManager.getPlayerSession( ctx.channel() );
         
@@ -122,7 +122,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理加入频道请求
      */
-    private void handleJoinChannelReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) {
+    private void handleJoinChannelReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.JoinChannelReq req = ChatProtocol.JoinChannelReq.parseFrom( msg.getData() );
         PlayerSession session = channelManager.getPlayerSession( ctx.channel() );
         
@@ -152,7 +152,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理离开频道请求
      */
-    private void handleLeaveChannelReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) {
+    private void handleLeaveChannelReq( ChannelHandlerContext ctx, ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.LeaveChannelReq req = ChatProtocol.LeaveChannelReq.parseFrom( msg.getData() );
         PlayerSession session = channelManager.getPlayerSession( ctx.channel() );
         
@@ -186,7 +186,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     private void broadcastToChannel( ChatProtocol.ChannelType channelType, String channelName, ChatProtocol.ChatMessage chatMessage ) {
         ChatProtocol.ChatNotify notify = ChatProtocol.ChatNotify.newBuilder().setChatMessage( chatMessage ).build();
         
-        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( ChatProtocol.MsgType.CHAT_NOTIFY ).setData( notify.toByteArray() ).build();
+        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( ChatProtocol.MsgType.CHAT_NOTIFY ).setData( com.google.protobuf.ByteString.copyFrom( notify.toByteArray() ) ).build();
         
         channelManager.broadcastToChannel( channelType, channelName, gameMsg );
     }
@@ -197,7 +197,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     private void sendChatNotify( Channel channel, ChatProtocol.ChatMessage chatMessage ) {
         ChatProtocol.ChatNotify notify = ChatProtocol.ChatNotify.newBuilder().setChatMessage( chatMessage ).build();
         
-        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( ChatProtocol.MsgType.CHAT_NOTIFY ).setData( notify.toByteArray() ).build();
+        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( ChatProtocol.MsgType.CHAT_NOTIFY ).setData( com.google.protobuf.ByteString.copyFrom( notify.toByteArray() ) ).build();
         
         channel.writeAndFlush( gameMsg );
     }
@@ -206,7 +206,7 @@ public class ServerHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
      * 发送消息
      */
     private void sendMsg( ChannelHandlerContext ctx, ChatProtocol.MsgType msgType, com.google.protobuf.GeneratedMessageV3 message ) {
-        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( msgType ).setData( message.toByteArray() ).build();
+        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( msgType ).setData( com.google.protobuf.ByteString.copyFrom( message.toByteArray() ) ).build();
         
         ctx.writeAndFlush( gameMsg );
     }

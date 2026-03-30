@@ -231,9 +231,9 @@ public class ChatClient {
     /**
      * 加入频道
      */
-    private void joinChannel( ChatProtocol.ChannelType channelType, String channelName ) {
+    public void joinChannel( ChatProtocol.ChannelType channelType, String channelName ) {
         ChatProtocol.JoinChannelReq req = ChatProtocol.JoinChannelReq.newBuilder().setChannelType( channelType ).setChannelName( channelName ).build();
-        
+
         sendMsg( ChatProtocol.MsgType.JOIN_CHANNEL_REQ, req );
     }
     
@@ -317,7 +317,7 @@ public class ChatClient {
             return;
         }
         
-        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( msgType ).setData( message.toByteArray() ).build();
+        ChatProtocol.GameMessage gameMsg = ChatProtocol.GameMessage.newBuilder().setMsgType( msgType ).setData( com.google.protobuf.ByteString.copyFrom( message.toByteArray() ) ).build();
         
         channel.writeAndFlush( gameMsg );
     }

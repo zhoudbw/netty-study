@@ -110,7 +110,7 @@ public class ChannelManager {
         ChannelGroup group = channelGroups.get( channelKey );
         
         if( group != null ) {
-            return new ArrayList<>( group.getPlayers() );
+            return new ArrayList<>( group.getPlayers().keySet() );
         }
         
         return new ArrayList<>();
@@ -141,7 +141,7 @@ public class ChannelManager {
         ChannelGroup group = channelGroups.get( channelKey );
         
         if( group != null ) {
-            for( String playerId : group.getPlayers() ) {
+            for( String playerId : group.getPlayers().keySet() ) {
                 Channel channel = playerChannels.get( playerId );
                 if( channel != null && channel.isActive() ) {
                     channel.writeAndFlush( message );

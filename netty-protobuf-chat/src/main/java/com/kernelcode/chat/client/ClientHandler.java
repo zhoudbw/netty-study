@@ -52,7 +52,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理连接响应
      */
-    private void handleConnectResp( ChatProtocol.GameMessage msg ) {
+    private void handleConnectResp( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.ConnectResp resp = ChatProtocol.ConnectResp.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
@@ -74,7 +74,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理心跳响应
      */
-    private void handleHeartbeatAck( ChatProtocol.GameMessage msg ) {
+    private void handleHeartbeatAck( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.HeartBeat heartBeat = ChatProtocol.HeartBeat.parseFrom( msg.getData() );
         System.out.println( "收到心跳响应: " + heartBeat.getTimestamp() );
     }
@@ -82,7 +82,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理聊天消息响应
      */
-    private void handleChatResp( ChatProtocol.GameMessage msg ) {
+    private void handleChatResp( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.ChatResp resp = ChatProtocol.ChatResp.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
@@ -98,7 +98,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理聊天消息通知
      */
-    private void handleChatNotify( ChatProtocol.GameMessage msg ) {
+    private void handleChatNotify( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.ChatNotify notify = ChatProtocol.ChatNotify.parseFrom( msg.getData() );
         ChatProtocol.ChatMessage chatMessage = notify.getChatMessage();
         
@@ -120,7 +120,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理加入频道响应
      */
-    private void handleJoinChannelResp( ChatProtocol.GameMessage msg ) {
+    private void handleJoinChannelResp( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.JoinChannelResp resp = ChatProtocol.JoinChannelResp.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
@@ -141,7 +141,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理离开频道响应
      */
-    private void handleLeaveChannelResp( ChatProtocol.GameMessage msg ) {
+    private void handleLeaveChannelResp( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.LeaveChannelResp resp = ChatProtocol.LeaveChannelResp.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
@@ -154,7 +154,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理用户列表通知
      */
-    private void handleUserListNotify( ChatProtocol.GameMessage msg ) {
+    private void handleUserListNotify( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.UserListNotify notify = ChatProtocol.UserListNotify.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
@@ -171,7 +171,7 @@ public class ClientHandler extends SimpleChannelInboundHandler< ChatProtocol.Gam
     /**
      * 处理历史消息响应
      */
-    private void handleHistoryResp( ChatProtocol.GameMessage msg ) {
+    private void handleHistoryResp( ChatProtocol.GameMessage msg ) throws com.google.protobuf.InvalidProtocolBufferException {
         ChatProtocol.HistoryResp resp = ChatProtocol.HistoryResp.parseFrom( msg.getData() );
         
         System.out.println( "\n========================================" );
